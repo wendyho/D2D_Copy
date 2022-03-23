@@ -54,6 +54,7 @@ HRESULT SdrOverlayEffect::Register(_In_ ID2D1Factory1* pFactory)
                     <Input name = 'Source'/>
                 </Inputs>
                 <!-- Custom Properties go here -->
+                
             </Effect>
             );
 
