@@ -33,11 +33,11 @@ D2D_PS_ENTRY(main)
     float isOutsideMaxLum = step(magicConstant - nits, nits - magicConstant); // 1 = out, 0 = in, inclusive of magicConstant
     float isInsideMaxLum = 1 - isOutsideMaxLum;
 
-    //float4 outsideMaxLumColor = float4(0.0f, 0.0f, 0.0f, 1.0f); // outside range is black
+    float4 outsideMaxLumColor = float4(0.0f, 0.0f, 0.0f, 1.0f); // outside range is black
     //float4 outsideMaxLumColor = float4(1.0f, 0.0f, 1.0f, 1.0f); // outside range is magenta
     //float lum = dot(float3(0.3f, 0.59f, 0.11f), output.rgb);
     //float4 outsideMaxLumColor = float4(lum, lum, lum, 1.0f); // outside range is grayscale, this operation isn't very noticable
-    float4 outsideMaxLumColor = float4(1.0f, 1.0f, 1.0f, 0.0f) - saturate(output); // outside range is inverted colors, if in HDR range it clamps to it to an SDR range and then inverts 
+    //float4 outsideMaxLumColor = float4(1.0f, 1.0f, 1.0f, 0.0f) - saturate(output); // outside range is inverted colors, if in HDR range it clamps to it to an SDR range and then inverts 
 
     float4 insideMaxLumColor = float4(output.rgb, 1.0f);
 

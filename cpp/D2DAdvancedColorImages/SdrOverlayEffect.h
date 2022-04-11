@@ -26,6 +26,10 @@ public:
 
     static HRESULT __stdcall CreateSdrOverlayImpl(_Outptr_ IUnknown** ppEffectImpl);
 
+    // Declare property getter/setters
+    HRESULT SetMaxLum(float nits);
+    float GetMaxLum() const;
+
     // Declare ID2D1EffectImpl implementation methods.
     IFACEMETHODIMP Initialize(
         _In_ ID2D1EffectContext* pContextInternal,
@@ -78,6 +82,7 @@ private:
     struct
     {
         float dpi;
+        float maxLuminance;
     } m_constants;
 
     Microsoft::WRL::ComPtr<ID2D1DrawInfo>      m_drawInfo;

@@ -22,6 +22,24 @@ SdrOverlayEffect::SdrOverlayEffect() :
 {
 }
 
+
+float SdrOverlayEffect::GetMaxLum() const
+{
+    return m_constants.maxLuminance * 80.0f;
+}
+
+HRESULT SdrOverlayEffect::SetMaxLum(float nits)
+{
+    if (nits < 0.0f || nits > 10000.0f)
+    {
+        return E_INVALIDARG;
+    }
+
+    m_constants.maxLuminance = nits / 80.0f; // scRGB 1.0 == 80 nits.
+
+    return S_OK;
+}
+
 HRESULT __stdcall SdrOverlayEffect::CreateSdrOverlayImpl(_Outptr_ IUnknown** ppEffectImpl)
 {
     // Since the object's refcount is initialized to 1, we don't need to AddRef here.
@@ -54,20 +72,34 @@ HRESULT SdrOverlayEffect::Register(_In_ ID2D1Factory1* pFactory)
                     <Input name = 'Source'/>
                 </Inputs>
                 <!-- Custom Properties go here -->
-                
+                <Property Name='MaxLuminance' type ='float'/>
             </Effect>
             );
-
+    const D2D1_PROPERTY_BINDING bindings[] =
+    {
+        D2D1_VALUE_TYPE_BINDING(
+            L"MaxLuminance",      // The name of property. Must match name attribute in XML.
+            &SetMaxLum,     // The setter method that is called on "SetValue".
+            &GetMaxLum      // The getter method that is called on "GetValue".
+            )
+    };
     // This registers the effect with the factory, which will make the effect
     // instantiatable.
     return pFactory->RegisterEffectFromString(
         CLSID_CustomSdrOverlayEffect,
         pszXml,
-        nullptr, // No custom properties
-        0,       // No custom properties
+        bindings,
+        ARRAYSIZE(bindings),
+        //nullptr,
+        //0,
         CreateSdrOverlayImpl
         );
 }
+
+// SITAO TODO:
+// 1. add a variable to the class to store the max luminnace (type: float). add it as a member to m_constants{}. OK
+// 2. implement GetMaxLum, that returns the value OK
+// 3. implement SetMaxLum, store into the value OK
 
 IFACEMETHODIMP SdrOverlayEffect::Initialize(
     _In_ ID2D1EffectContext* pEffectContext,
@@ -118,6 +150,8 @@ HRESULT SdrOverlayEffect::UpdateConstants()
 
 IFACEMETHODIMP SdrOverlayEffect::PrepareForRender(D2D1_CHANGE_TYPE changeType)
 {
+   // FLOAT maxLum;
+   // maxLum = static_cast<FLOAT>()
     return UpdateConstants();
 }
 
