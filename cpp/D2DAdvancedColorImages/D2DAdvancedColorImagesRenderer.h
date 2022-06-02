@@ -15,6 +15,7 @@
 #include "ReinhardEffect.h"
 #include "FilmicEffect.h"
 #include "SdrOverlayEffect.h"
+#include "MaxLuminanceEffect.h"
 #include "LuminanceHeatmapEffect.h"
 #include "RenderOptions.h"
 
@@ -96,6 +97,7 @@ namespace D2DAdvancedColorImages
         Microsoft::WRL::ComPtr<ID2D1Effect>                     m_reinhardEffect;
         Microsoft::WRL::ComPtr<ID2D1Effect>                     m_filmicEffect;
         Microsoft::WRL::ComPtr<ID2D1Effect>                     m_sdrOverlayEffect;
+        Microsoft::WRL::ComPtr<ID2D1Effect>                     m_maxLuminanceEffect;
         Microsoft::WRL::ComPtr<ID2D1Effect>                     m_heatmapEffect;
         Microsoft::WRL::ComPtr<ID2D1Effect>                     m_histogramPrescale;
         Microsoft::WRL::ComPtr<ID2D1Effect>                     m_histogramEffect;

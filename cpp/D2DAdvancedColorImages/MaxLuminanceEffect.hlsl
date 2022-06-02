@@ -9,8 +9,8 @@
 // 
 //*********************************************************
 
-// Change file names
-// change every mention in class of MaxLuminanceEffect
+// Change file names OK
+// change every mention in class of MaxLuminanceEffect OK
 // Create new GUID
 // in renderer add new switch statement
 // expose it in UI (look at SDR overlay effect, in XAML or UI code)

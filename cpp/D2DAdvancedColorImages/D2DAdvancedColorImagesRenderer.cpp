@@ -83,6 +83,10 @@ void D2DAdvancedColorImagesRenderer::CreateDeviceIndependentResources()
         );
 
     DX::ThrowIfFailed(
+        MaxLuminanceEffect::Register(m_deviceResources->GetD2DFactory())
+    );
+
+    DX::ThrowIfFailed(
         LuminanceHeatmapEffect::Register(m_deviceResources->GetD2DFactory())
         );
 }
@@ -116,7 +120,7 @@ void D2DAdvancedColorImagesRenderer::SetRenderOptions(
     m_dispInfo = acInfo;
     m_renderEffectKind = effect;
     m_brightnessAdjust = brightnessAdjustment;
-
+    float lum = m_dispInfo->MaxLuminanceInNits;
     auto sdrWhite = m_dispInfo ? m_dispInfo->SdrWhiteLevelInNits : sc_nominalRefWhite;
 
     UpdateWhiteLevelScale(m_brightnessAdjust, sdrWhite);
@@ -154,6 +158,19 @@ void D2DAdvancedColorImagesRenderer::SetRenderOptions(
     case RenderEffectKind::SdrOverlay:
         m_finalOutput = m_whiteScaleEffect.Get();
         m_whiteScaleEffect->SetInputEffect(0, m_sdrOverlayEffect.Get());
+       
+        lum = Clamp(lum, 80.0f, 10000.0f);
+        m_sdrOverlayEffect->SetValueByName(L"MaxLuminance", lum);
+        
+        break;
+
+    case RenderEffectKind::MaxLuminance:
+        m_finalOutput = m_whiteScaleEffect.Get();
+        m_whiteScaleEffect->SetInputEffect(0, m_maxLuminanceEffect.Get());
+
+        lum = Clamp(lum, 80.0f, 10000.0f);
+        m_maxLuminanceEffect->SetValueByName(L"MaxLuminance", lum);
+
         break;
 
     default:
@@ -293,6 +310,10 @@ void D2DAdvancedColorImagesRenderer::CreateImageDependentResources()
         );
 
     DX::ThrowIfFailed(
+        context->CreateEffect(CLSID_CustomMaxLuminanceEffect, &m_maxLuminanceEffect)
+    );
+
+    DX::ThrowIfFailed(
         context->CreateEffect(CLSID_CustomLuminanceHeatmapEffect, &m_heatmapEffect)
         );
 
@@ -303,6 +324,7 @@ void D2DAdvancedColorImagesRenderer::CreateImageDependentResources()
     // tonemapping (otherwise brightness adjustments will affect numerical values).
     m_heatmapEffect->SetInputEffect(0, m_colorManagementEffect.Get());
     m_sdrOverlayEffect->SetInputEffect(0, m_colorManagementEffect.Get());
+    m_maxLuminanceEffect->SetInputEffect(0, m_colorManagementEffect.Get());
 
     // The remainder of the Direct2D effect graph is constructed in SetRenderOptions based on the
     // selected RenderEffectKind.
@@ -402,6 +424,7 @@ void D2DAdvancedColorImagesRenderer::ReleaseImageDependentResources()
     m_reinhardEffect.Reset();
     m_filmicEffect.Reset();
     m_sdrOverlayEffect.Reset();
+    m_maxLuminanceEffect.Reset();
     m_heatmapEffect.Reset();
     m_histogramPrescale.Reset();
     m_histogramEffect.Reset();

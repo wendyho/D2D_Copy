@@ -390,6 +390,7 @@ fxc /T ps_4_0 LuminanceHeatmapEffect.hlsl /D D2D_FULL_SHADER /D D2D_ENTRY=main /
     </ClInclude>
     <ClInclude Include="FilmicEffect.h" />
     <ClInclude Include="LuminanceHeatmapEffect.h" />
+    <ClInclude Include="MaxLuminanceEffect.h" />
     <ClInclude Include="RenderOptions.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="D2DAdvancedColorImagesRenderer.h" />
@@ -407,6 +408,7 @@ fxc /T ps_4_0 LuminanceHeatmapEffect.hlsl /D D2D_FULL_SHADER /D D2D_ENTRY=main /
     </ClCompile>
     <ClCompile Include="FilmicEffect.cpp" />
     <ClCompile Include="LuminanceHeatmapEffect.cpp" />
+    <ClCompile Include="MaxLuminanceEffet.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -449,6 +451,12 @@ fxc /T ps_4_0 LuminanceHeatmapEffect.hlsl /D D2D_FULL_SHADER /D D2D_ENTRY=main /
   </ItemGroup>
   <ItemGroup>
     <Text Include="LuminanceHeatmapEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="MaxLuminanceEffect.hlsl">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

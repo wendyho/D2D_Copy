@@ -11,24 +11,24 @@
 
 #include "pch.h"
 #include <initguid.h>
-#include "SdrOverlayEffect.h"
+#include "MaxLuminanceEffect.h"
 #include "BasicReaderWriter.h"
 
 #define XML(X) TEXT(#X)
 
-SdrOverlayEffect::SdrOverlayEffect() :
+MaxLuminanceEffect::MaxLuminanceEffect() :
     m_refCount(1),
     m_constants{}
 {
 }
 
 
-float SdrOverlayEffect::GetMaxLum() const
+float MaxLuminanceEffect::GetMaxLum() const
 {
     return m_constants.maxLuminance;
 }
 
-HRESULT SdrOverlayEffect::SetMaxLum(float nits)
+HRESULT MaxLuminanceEffect::SetMaxLum(float nits)
 {
     if (nits < 0.0f || nits > 10000.0f)
     {
@@ -40,10 +40,10 @@ HRESULT SdrOverlayEffect::SetMaxLum(float nits)
     return S_OK;
 }
 
-HRESULT __stdcall SdrOverlayEffect::CreateSdrOverlayImpl(_Outptr_ IUnknown** ppEffectImpl)
+HRESULT __stdcall MaxLuminanceEffect::CreateMaxLuminanceImpl(_Outptr_ IUnknown** ppEffectImpl)
 {
     // Since the object's refcount is initialized to 1, we don't need to AddRef here.
-    *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new (std::nothrow) SdrOverlayEffect());
+    *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new (std::nothrow) MaxLuminanceEffect());
 
     if (*ppEffectImpl == nullptr)
     {
@@ -55,7 +55,7 @@ HRESULT __stdcall SdrOverlayEffect::CreateSdrOverlayImpl(_Outptr_ IUnknown** ppE
     }
 }
 
-HRESULT SdrOverlayEffect::Register(_In_ ID2D1Factory1* pFactory)
+HRESULT MaxLuminanceEffect::Register(_In_ ID2D1Factory1* pFactory)
 {
     // The inspectable metadata of an effect is defined in XML. This can be passed in from an external source
     // as well, however for simplicity we just inline the XML.
@@ -64,7 +64,7 @@ HRESULT SdrOverlayEffect::Register(_In_ ID2D1Factory1* pFactory)
             <?xml version='1.0'?>
             <Effect>
                 <!-- System Properties -->
-                <Property name='DisplayName' type='string' value='SdrOverlay'/>
+                <Property name='DisplayName' type='string' value='MaxLuminance'/>
                 <Property name='Author' type='string' value='Microsoft Corporation'/>
                 <Property name='Category' type='string' value='Source'/>
                 <Property name='Description' type='string' value='Emulates SDR behavior on an AC source'/>
@@ -88,13 +88,13 @@ HRESULT SdrOverlayEffect::Register(_In_ ID2D1Factory1* pFactory)
     // This registers the effect with the factory, which will make the effect
     // instantiatable.
     return pFactory->RegisterEffectFromString(
-        CLSID_CustomSdrOverlayEffect,
+        CLSID_CustomMaxLuminanceEffect,
         pszXml,
         bindings,
         ARRAYSIZE(bindings),
         //nullptr,
         //0,
-        CreateSdrOverlayImpl
+        CreateMaxLuminanceImpl
         );
 }
 
@@ -103,7 +103,7 @@ HRESULT SdrOverlayEffect::Register(_In_ ID2D1Factory1* pFactory)
 // 2. implement GetMaxLum, that returns the value OK
 // 3. implement SetMaxLum, store into the value OK
 
-IFACEMETHODIMP SdrOverlayEffect::Initialize(
+IFACEMETHODIMP MaxLuminanceEffect::Initialize(
     _In_ ID2D1EffectContext* pEffectContext,
     _In_ ID2D1TransformGraph* pTransformGraph
     )
@@ -116,7 +116,7 @@ IFACEMETHODIMP SdrOverlayEffect::Initialize(
 
     try
     {
-        data = reader->ReadData("SdrOverlayEffect.cso");
+        data = reader->ReadData("MaxLuminanceEffect.cso");
     }
     catch (Platform::Exception^ e)
     {
@@ -124,7 +124,7 @@ IFACEMETHODIMP SdrOverlayEffect::Initialize(
         return e->HResult;
     }
 
-    HRESULT hr = pEffectContext->LoadPixelShader(GUID_SdrOverlayPixelShader, data->Data, data->Length);
+    HRESULT hr = pEffectContext->LoadPixelShader(GUID_MaxLuminancePixelShader, data->Data, data->Length);
 
     // This loads the shader into the Direct2D image effects system and associates it with the GUID passed in.
     // If this method is called more than once (say by other instances of the effect) with the same GUID,
@@ -141,7 +141,7 @@ IFACEMETHODIMP SdrOverlayEffect::Initialize(
     return hr;
 }
 
-HRESULT SdrOverlayEffect::UpdateConstants()
+HRESULT MaxLuminanceEffect::UpdateConstants()
 {
     // Update the DPI if it has changed. This allows the effect to scale across different DPIs automatically.
     m_effectContext->GetDpi(&m_dpi, &m_dpi);
@@ -150,7 +150,7 @@ HRESULT SdrOverlayEffect::UpdateConstants()
     return m_drawInfo->SetPixelShaderConstantBuffer(reinterpret_cast<BYTE*>(&m_constants), sizeof(m_constants));
 }
 
-IFACEMETHODIMP SdrOverlayEffect::PrepareForRender(D2D1_CHANGE_TYPE changeType)
+IFACEMETHODIMP MaxLuminanceEffect::PrepareForRender(D2D1_CHANGE_TYPE changeType)
 {
    // FLOAT maxLum;
    // maxLum = static_cast<FLOAT>()
@@ -159,22 +159,22 @@ IFACEMETHODIMP SdrOverlayEffect::PrepareForRender(D2D1_CHANGE_TYPE changeType)
 
 // SetGraph is only called when the number of inputs changes. This never happens as we publish this effect
 // as a single input effect.
-IFACEMETHODIMP SdrOverlayEffect::SetGraph(_In_ ID2D1TransformGraph* pGraph)
+IFACEMETHODIMP MaxLuminanceEffect::SetGraph(_In_ ID2D1TransformGraph* pGraph)
 {
     return E_NOTIMPL;
 }
 
 // Called to assign a new render info class, which is used to inform D2D on
 // how to set the state of the GPU.
-IFACEMETHODIMP SdrOverlayEffect::SetDrawInfo(_In_ ID2D1DrawInfo* pDrawInfo)
+IFACEMETHODIMP MaxLuminanceEffect::SetDrawInfo(_In_ ID2D1DrawInfo* pDrawInfo)
 {
     m_drawInfo = pDrawInfo;
 
-    return m_drawInfo->SetPixelShader(GUID_SdrOverlayPixelShader);
+    return m_drawInfo->SetPixelShader(GUID_MaxLuminancePixelShader);
 }
 
 // Calculates the mapping between the output and input rects.
-IFACEMETHODIMP SdrOverlayEffect::MapOutputRectToInputRects(
+IFACEMETHODIMP MaxLuminanceEffect::MapOutputRectToInputRects(
     _In_ const D2D1_RECT_L* pOutputRect,
     _Out_writes_(inputRectCount) D2D1_RECT_L* pInputRects,
     UINT32 inputRectCount
@@ -195,7 +195,7 @@ IFACEMETHODIMP SdrOverlayEffect::MapOutputRectToInputRects(
     return S_OK;
 }
 
-IFACEMETHODIMP SdrOverlayEffect::MapInputRectsToOutputRect(
+IFACEMETHODIMP MaxLuminanceEffect::MapInputRectsToOutputRect(
     _In_reads_(inputRectCount) CONST D2D1_RECT_L* pInputRects,
     _In_reads_(inputRectCount) CONST D2D1_RECT_L* pInputOpaqueSubRects,
     UINT32 inputRectCount,
@@ -219,7 +219,7 @@ IFACEMETHODIMP SdrOverlayEffect::MapInputRectsToOutputRect(
     return S_OK;
 }
 
-IFACEMETHODIMP SdrOverlayEffect::MapInvalidRect(
+IFACEMETHODIMP MaxLuminanceEffect::MapInvalidRect(
     UINT32 inputIndex,
     D2D1_RECT_L invalidInputRect,
     _Out_ D2D1_RECT_L* pInvalidOutputRect
@@ -233,7 +233,7 @@ IFACEMETHODIMP SdrOverlayEffect::MapInvalidRect(
     return hr;
 }
 
-IFACEMETHODIMP_(UINT32) SdrOverlayEffect::GetInputCount() const
+IFACEMETHODIMP_(UINT32) MaxLuminanceEffect::GetInputCount() const
 {
     return 1;
 }
@@ -241,13 +241,13 @@ IFACEMETHODIMP_(UINT32) SdrOverlayEffect::GetInputCount() const
 // D2D ensures that that effects are only referenced from one thread at a time.
 // To improve performance, we simply increment/decrement our reference count
 // rather than use atomic InterlockedIncrement()/InterlockedDecrement() functions.
-IFACEMETHODIMP_(ULONG) SdrOverlayEffect::AddRef()
+IFACEMETHODIMP_(ULONG) MaxLuminanceEffect::AddRef()
 {
     m_refCount++;
     return m_refCount;
 }
 
-IFACEMETHODIMP_(ULONG) SdrOverlayEffect::Release()
+IFACEMETHODIMP_(ULONG) MaxLuminanceEffect::Release()
 {
     m_refCount--;
 
@@ -263,9 +263,9 @@ IFACEMETHODIMP_(ULONG) SdrOverlayEffect::Release()
 }
 
 // This enables the stack of parent interfaces to be queried. In the instance
-// of the SdrOverlay interface, this method simply enables the developer
-// to cast a SdrOverlay instance to an ID2D1EffectImpl or IUnknown instance.
-IFACEMETHODIMP SdrOverlayEffect::QueryInterface(
+// of the MaxLuminance interface, this method simply enables the developer
+// to cast a MaxLuminance instance to an ID2D1EffectImpl or IUnknown instance.
+IFACEMETHODIMP MaxLuminanceEffect::QueryInterface(
     _In_ REFIID riid,
     _Outptr_ void** ppOutput
     )

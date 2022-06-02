@@ -26,6 +26,7 @@ namespace D2DAdvancedColorImages
         FilmicTonemap,
         None,
         SdrOverlay,
+        MaxLuminance,
         LuminanceHeatmap
     };
 
@@ -71,6 +72,7 @@ namespace D2DAdvancedColorImages
                 ref new EffectOption(L"Reinhard Tonemap", RenderEffectKind::ReinhardTonemap),
                 ref new EffectOption(L"No effect", RenderEffectKind::None),
                 ref new EffectOption(L"Draw SDR as grayscale", RenderEffectKind::SdrOverlay),
+                ref new EffectOption(L"Show max luminance", RenderEffectKind::MaxLuminance),
                 ref new EffectOption(L"Draw luminance as heatmap", RenderEffectKind::LuminanceHeatmap)
             };
         }
